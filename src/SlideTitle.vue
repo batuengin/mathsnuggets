@@ -11,10 +11,17 @@ div.box
       .column.is-narrow.date
         div {{ today }}
         div {{ time }}
+      .column.is-narrow(v-if="!authState.loggedIn")
+        b-icon(
+          pack="fas"
+          icon="sign-in-alt"
+          @click="login"
+        )
 </template>
 
 <script>
 import 'typeface-fira-sans'
+import { auth } from './auth.js'
 var moment = require('moment')
 
 export default {
@@ -23,6 +30,7 @@ export default {
   },
   data () {
     return {
+      authState: auth.state,
       today: moment().format('dddd Do MMM'),
       interval: false,
       time: moment().format('hh:mm a')
