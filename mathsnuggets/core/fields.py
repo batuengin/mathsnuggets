@@ -312,3 +312,32 @@ class Password(Field):
     @staticmethod
     def check(value, hashed):
         return bcrypt.checkpw(value.encode("utf8"), hashed)
+
+
+class Amplitude(Field):
+    conversion_table = {
+        "radian": 1,
+        "degree": sympy.pi/180
+    }
+
+    def sanitize(self, amplitude):
+        if amplitude['unit'] not in self.conversion_table:
+            raise KeyError(f"Unit does not exist: {repr(amplitude['unit'])}")
+        return {
+            "radian_value": parse(amplitude['value']),
+            "conversion_factor": self.conversion_table[amplitude['unit']]
+        }
+
+    def callback(self, instance):
+        return instance.__dict__[self.name]['radian_value']
+
+    def export(self, dict_amplitude):
+        return {
+            "value": {
+                'value': dict_amplitude['radian_value'] / dict_amplitude['conversion_factor'],
+                'unit': 'radian' if dict_amplitude['conversion_factor'] == 1 else 'degree'
+            },
+            "valid": True
+        }
+
+

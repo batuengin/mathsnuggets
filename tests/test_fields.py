@@ -14,7 +14,7 @@ class Foo(form.Form):
     password = fields.Password("Email")
     protected = fields.Field("Protected", default="Protected", protected=True)
     select = fields.Select("Select", options=["Hi", "Hello"])
-
+    amplitude = fields.Amplitude("Angle")
     @fields.constraint("Contraint", default=True)
     def constraint(self):
         return self.real > 0
@@ -159,3 +159,14 @@ def test_password():
         test.password = ""
     with pytest.raises(ValueError):
         test.password = "short"
+
+def test_amplitude():
+    test.amplitude = {"value": 60, "unit": 'degree'}
+    assert test.amplitude == sympy.pi / 3
+    export = type(test).amplitude.validate(test.amplitude)
+    assert export == {"value": 60, "unit": 'degree'}
+
+    test.amplitude = {"value": sympy.pi, "unit": 'radian'}
+    assert test.amplitude == sympy.pi
+
+
